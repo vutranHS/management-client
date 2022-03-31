@@ -1,5 +1,9 @@
 const exec = require('child_process').exec;
 const axios = require('axios');
+const info = require('node-os-utils');
+
+const cpu = info.cpu
+
 
 const
   io = require("socket.io-client"),
@@ -24,15 +28,10 @@ setInterval(async () => {
     const {data: result} = await axios.get('http://ipinfo.io/ip');
     ioClient.emit('myIP', `${result}`);
 
-    exec('uptime', (e, stdout, stderr) => {
-      if (e instanceof Error) {
-        console.error(e);
-        throw e;
-      }
-      console.log('stdout ', stdout);
-      console.log('stderr ', stderr);
-      ioClient.emit('cpu', `${stdout}`);
-    })
+    cpu.usage()
+      .then(info => {
+        ioClient.emit('cpu', `${info}`);
+      })
 
   }
   catch (e) {
